@@ -61,34 +61,29 @@ function update_available_numbers_element() {
     available_numbers_element.style.gridTemplateColumns = `repeat(${size}, 15px)`;
     available_numbers_element.style.gridTemplateRows = `repeat(${size}, 15px)`;
 
-    // 1. Create an empty 2D array (6x6) to act as a coordinate map
-    let gridMap = Array.from({ length: size }, () => Array(size).fill(null));
+    let grid_map = Array.from({ length: size }, () => Array(size).fill(null));
 
-    // 2. Fill the 2D array in the diagonal pattern shown in your drawing
-    let currentIdx = 0;
-    // The sum of coordinates (i + j) ranges from 0 to 10 (for a 6x6 grid)
+    let current_index = 0;
     for (let sum = 0; sum <= (size - 1) * 2; sum++) {
         for (let row = 0; row <= sum; row++) {
             let col = sum - row;
-            // Stay within the 6x6 boundaries
             if (row < size && col < size) {
-                if (currentIdx < numbers.length) {
-                    gridMap[row][col] = numbers[currentIdx];
-                    currentIdx++;
+                if (current_index < numbers.length) {
+                    grid_map[row][col] = numbers[current_index];
+                    current_index++;
                 }
             }
         }
     }
 
-    // 3. Flatten the map and render the divs
-    const flatDiagonalData = gridMap.flat();
+    const flat_diagonal_data = grid_map.flat();
 
-    flatDiagonalData.forEach(numObj => {
+    flat_diagonal_data.forEach(num => {
         const cell = document.createElement('div');
         cell.className = 'cell';
-        if (numObj) {
-            cell.textContent = numObj.value;
-            if (numObj.used) cell.classList.add('used');
+        if(num) {
+            cell.textContent = num.value;
+            if (num.used) cell.classList.add('used');
         }
         available_numbers_element.appendChild(cell);
     });
