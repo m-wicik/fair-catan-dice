@@ -7,6 +7,8 @@ const lowest_number = 2;
 const highest_number = 12;
 const midpoint_number = (lowest_number + highest_number) / 2;
 const highest_odds = 6;
+const roll_duration = 250;
+const interval_time = 50;
 
 let numbers = [];
 
@@ -19,6 +21,7 @@ function new_game() {
     dice_roll_element.style.display = "flex";
     available_numbers_element.style.display = "block";
     end_game_button.style.display = "block";
+    dice_roll_element.innerText = "?";
     reset_numbers();
 }
 
@@ -48,10 +51,17 @@ function roll() {
     const random_index = Math.floor(Math.random() * num_available);
     const chosen_number = available_numbers[random_index];
     const chosen_id = chosen_number.id;
-    numbers.find(num => num.id == chosen_id).used = true;
-    dice_roll_element.innerText = chosen_number.value;
-    if(num_available <= 1) reset_numbers();
-    else update_available_numbers_element();
+
+    const roller = setInterval(() => {
+        dice_roll_element.textContent = Math.floor(Math.random() * 11) + 2;
+    }, interval_time);
+    setTimeout(() => {
+        clearInterval(roller);
+        numbers.find(num => num.id == chosen_id).used = true;
+        dice_roll_element.innerText = chosen_number.value;
+        if(num_available <= 1) reset_numbers();
+        else update_available_numbers_element();
+    }, roll_duration);
 }
 
 function update_available_numbers_element() {
@@ -64,11 +74,11 @@ function update_available_numbers_element() {
     let grid_map = Array.from({ length: size }, () => Array(size).fill(null));
 
     let current_index = 0;
-    for (let sum = 0; sum <= (size - 1) * 2; sum++) {
-        for (let row = 0; row <= sum; row++) {
+    for(let sum = 0; sum <= (size - 1) * 2; sum++) {
+        for(let row = 0; row <= sum; row++) {
             let col = sum - row;
-            if (row < size && col < size) {
-                if (current_index < numbers.length) {
+            if(row < size && col < size) {
+                if(current_index < numbers.length) {
                     grid_map[row][col] = numbers[current_index];
                     current_index++;
                 }
@@ -83,7 +93,7 @@ function update_available_numbers_element() {
         cell.className = 'cell';
         if(num) {
             cell.textContent = num.value;
-            if (num.used) cell.classList.add('used');
+            if(num.used) cell.classList.add('used');
         }
         available_numbers_element.appendChild(cell);
     });
