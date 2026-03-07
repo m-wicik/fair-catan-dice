@@ -1,6 +1,8 @@
-const new_game_button = document.getElementById("new_game_button");
+const classic_button = document.getElementById("classic_button");
+const mystery_button = document.getElementById("mystery_button");
 const dice_roll_element = document.getElementById("dice_roll");
 const available_numbers_element = document.getElementById("available_numbers");
+const choices_remaining_element = document.getElementById("choices_remaining");
 const end_game_button = document.getElementById("end_game_button");
 
 const lowest_number = 2;
@@ -11,24 +13,41 @@ const roll_duration = 250;
 const interval_time = 50;
 
 let numbers = [];
+let mode = null;
 
-new_game_button.onclick = () => new_game();
+classic_button.onclick = () => classic_game();
+mystery_button.onclick = () => mystery_game();
 dice_roll_element.onclick = () => roll();
 end_game_button.onclick = () => back_to_home_screen();
 
-function new_game() {
-    new_game_button.style.display = "none";
-    dice_roll_element.style.display = "flex";
+function classic_game() {
+    mode = "classic";
     available_numbers_element.style.display = "block";
-    end_game_button.style.display = "block";
+    initiate_game();
+}
+
+function mystery_game() {
+    mode = "mystery";
+    choices_remaining_element.style.display = "block";
+    initiate_game();
+}
+
+function initiate_game() {
+    classic_button.style.display = "none";
+    mystery_button.style.display = "none";
+    dice_roll_element.style.display = "flex";
     dice_roll_element.innerText = "?";
+    end_game_button.style.display = "block";
     reset_numbers();
 }
 
 function back_to_home_screen() {
-    new_game_button.style.display = "block";
+    mode = null;
+    classic_button.style.display = "block";
+    mystery_button.style.display = "block";
     dice_roll_element.style.display = "none";
     available_numbers_element.style.display = "none";
+    choices_remaining_element.style.display = "none";
     end_game_button.style.display = "none";
 }
 
@@ -42,11 +61,15 @@ function reset_numbers() {
             counter++;
         }
     }
-    update_available_numbers_element();
+    update_display();
+}
+
+function get_available_numbers() {
+    return numbers.filter(num => num.used == false);
 }
 
 function roll() {
-    const available_numbers = numbers.filter(num => num.used == false);
+    const available_numbers = get_available_numbers();
     const num_available = available_numbers.length;
     const random_index = Math.floor(Math.random() * num_available);
     const chosen_number = available_numbers[random_index];
@@ -60,8 +83,13 @@ function roll() {
         numbers.find(num => num.id == chosen_id).used = true;
         dice_roll_element.innerText = chosen_number.value;
         if(num_available <= 1) reset_numbers();
-        else update_available_numbers_element();
+        else update_display();
     }, roll_duration);
+}
+
+function update_display() {
+    if(mode == "classic") update_available_numbers_element();
+    else if(mode == "mystery") update_choices_remaining_element();
 }
 
 function update_available_numbers_element() {
@@ -97,4 +125,9 @@ function update_available_numbers_element() {
         }
         available_numbers_element.appendChild(cell);
     });
+}
+
+function update_choices_remaining_element() {
+    const num_available_numbers = get_available_numbers().length;
+    choices_remaining_element.innerHTML = `${num_available_numbers} roll${num_available_numbers == 1 ? "" : "s"} remaining`; 
 }
